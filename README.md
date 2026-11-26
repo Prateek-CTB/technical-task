@@ -9,7 +9,7 @@ Collects and analyses Booking.com guest reviews for four Azzurro Hotels properti
 | **Real data** | **973 genuine reviews** collected from the four public Booking.com pages (May 2025 to Nov 2026). Reviewer names are never collected. Committed as [`data/seed/sample_reviews.json`](data/seed/sample_reviews.json). |
 | **Insights** | 970 of 970 reviews with text analysed (100%): 29 by an AI model, 941 by the offline rule-based analyzer. Every topic tag is backed by a verbatim quote. |
 | **Collection** | Three strategies with honest block reporting. CAPTCHA, AWS WAF challenges and refusals are detected, recorded as **BLOCKED** with the reason, and **never bypassed**. |
-| **Checks** | Backend 682 tests (SQLite **and** PostgreSQL), frontend 22 unit tests, 48 end-to-end runs (real and demo data, desktop and mobile). Lint, strict type checks, build and dependency audits are clean. |
+| **Checks** | Backend 698 tests (SQLite **and** PostgreSQL), frontend 22 unit tests, 60 end-to-end runs (real and demo data, desktop and mobile). Lint, strict type checks, build and dependency audits are clean. |
 
 ---
 
@@ -317,11 +317,11 @@ Without Docker, the backend tests start an embedded PostgreSQL (`pixeltable-pgse
 | Suite | Result |
 |---|---|
 | Backend: ruff, ruff format, mypy `--strict` | clean |
-| Backend: pytest (SQLite + PostgreSQL) | **682 passed**, 0 skipped |
+| Backend: pytest (SQLite + PostgreSQL) | **698 passed**, 0 skipped |
 | Frontend: ESLint, `tsc` (strict), `next build` | clean |
 | Frontend: Vitest + React Testing Library | **22 passed** |
-| End-to-end: Playwright, real data | **24 passed** (12 scenarios × desktop + mobile) |
-| End-to-end: Playwright, synthetic demo data | **24 passed** |
+| End-to-end: Playwright, real data | **30 passed** (15 scenarios × desktop + mobile) |
+| End-to-end: Playwright, synthetic demo data | **30 passed** |
 | `npm audit --omit=dev`, `pip-audit` | 0 known vulnerabilities |
 
 What the tests cover:
@@ -329,7 +329,8 @@ What the tests cover:
 - **Imports and data:** validation, partial failures, deduplication under concurrency, schema/migration equivalence, constraints, timezones and DST.
 - **Analysis:** the analyzer, evidence verification, prompt injection, provider failures and quota, precedence, agreement.
 - **Analytics:** every metric, sample-size states, evidence polarity.
-- **Frontend:** navigation, KPIs, property comparison, filters, sorting, pagination, search, insight → reviews, collection history and BLOCKED rendering, the import preview → commit flow, Zod contract errors, error and empty states, and synthetic-data labelling.
+- **Frontend:** navigation, KPIs, property comparison, filters, sorting, pagination, search, insight → reviews, collection history and BLOCKED rendering, the import preview → commit flow, the guided tour, light/dark and colour themes, the Update data actions, Zod contract errors, error and empty states, and synthetic-data labelling.
+- **Dashboard actions (backend):** AI availability and the data-protection switch, the bounded AI run size, background start, one run at a time (a dead run does not block), and collection defaults followed by offline analysis.
 
 **Live versus mocked, stated plainly:** live collection was run against Booking.com on 2026-11-26 (visible browser: 973 reviews; HTTP strategy: WAF challenge observed). The **automated tests never contact Booking.com or OpenRouter**: they use fixtures, fakes and a deterministic mock provider. The 29 real AI analyses came from live OpenRouter runs, not tests.
 
@@ -372,7 +373,7 @@ backend/src/reviewhub/
   analytics/    service.py: every metric
   api/v1/       health · ingestion · analytics · analysis
   persistence/  models · migrations · runs (heartbeat, reaping) · scopes (dataset isolation)
-backend/tests/  682 tests; fixtures/ holds the redacted live WAF page and a JSON-LD page
+backend/tests/  698 tests; fixtures/ holds the redacted live WAF page and a JSON-LD page
 frontend/src/   app/ (5 pages + property detail) · components/ · hooks/ (TanStack Query) · services/ (API client, Zod) · test/
 frontend/e2e/   Playwright end-to-end suite
 data/seed/      sample_reviews.json: the 973 real reviews
