@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<!--
+  Test fixture modelled on the structure observed on the live Booking.com property page
+  (2026-11-26): one schema.org JSON-LD block of @type Hotel with an aggregateRating, and the
+  AWS WAF integration script that normal (non-challenge) pages also load. Values are the ones
+  observed for Olympic Hotel Paddington. No guest content, no reviewer names.
+-->
+<html lang="en-gb">
+<head>
+  <meta charset="utf-8">
+  <title>Olympic Hotel Paddington, Sydney</title>
+  <script type="text/javascript">window.awsWafCookieDomainList = ['booking.com'];</script>
+  <script type="application/ld+json">
+  {"@context":"http://schema.org","@type":"Hotel","name":"Olympic Hotel Paddington",
+   "url":"https://www.booking.com/hotel/au/olympic-paddington.en-gb.html",
+   "aggregateRating":{"@type":"AggregateRating","ratingValue":6.4,"bestRating":10,"reviewCount":129},
+   "address":{"@type":"PostalAddress","addressLocality":"Sydney","addressCountry":"AU"}}
+  </script>
+  <script type="application/ld+json">{ this block is deliberately broken </script>
+</head>
+<body>
+  <div data-testid="property-header">Olympic Hotel Paddington</div>
+  <button data-testid="fr-read-all-reviews">Read all reviews</button>
+</body>
+</html>

@@ -1,0 +1,159 @@
+@import "tailwindcss";
+
+/*
+ * Design system: shadcn/ui dashboard style, matched to the reference dashboard's computed CSS.
+ *
+ * Themes = a MODE (dark | light) x an ACCENT preset (lime, blue, violet, amber, teal, neutral),
+ * set as data attributes on <html> (see hooks/theme.tsx). Every tint is DERIVED from a handful
+ * of base colours with color-mix(), so switching mode or accent reskins the whole app and the
+ * semantic token names (accent, positive, negative, ink, surface...) never change.
+ *
+ * Colour is never the only signal: sentiment always carries a +/- mark or a label as well.
+ */
+@theme {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: var(--font-sans);
+
+  /* ---- base colours: DARK mode (default) ---- */
+  --color-sidebar: #020309;
+  --color-canvas: #04060f;
+  --color-surface: #0d1324;
+  --color-line: #1f2738;
+  --color-line-strong: #2b3549;
+  --color-ink: #f8fafc;
+  --color-ink-soft: #cbd5e1;
+  --color-ink-faint: #94a3b8;
+  --color-muted: #94a3b8;
+  --color-on-dark: #cbd5e1;
+  --color-charcoal: #0d1324;
+  --color-charcoal-soft: #151c30;
+  --color-sand-100: #161d2e;
+
+  --color-accent: #b4f03c;
+  --color-on-accent: #0a0a0a;
+  --color-positive: #22c55e;
+  --color-negative: #f43f5e;
+  --color-warning: #f59e0b;
+
+  /* ---- derived tints (follow mode and accent automatically) ---- */
+  --color-accent-50: color-mix(in oklab, var(--color-accent) 14%, var(--color-surface));
+  --color-accent-100: color-mix(in oklab, var(--color-accent) 26%, var(--color-surface));
+  --color-accent-700: color-mix(in oklab, var(--color-accent) 85%, white);
+  --color-accent-800: color-mix(in oklab, var(--color-accent) 60%, white);
+
+  --color-positive-50: color-mix(in oklab, var(--color-positive) 14%, var(--color-surface));
+  --color-positive-100: color-mix(in oklab, var(--color-positive) 28%, var(--color-surface));
+  --color-positive-700: color-mix(in oklab, var(--color-positive) 70%, white);
+
+  --color-negative-50: color-mix(in oklab, var(--color-negative) 14%, var(--color-surface));
+  --color-negative-100: color-mix(in oklab, var(--color-negative) 28%, var(--color-surface));
+  --color-negative-700: color-mix(in oklab, var(--color-negative) 70%, white);
+
+  --color-warning-100: color-mix(in oklab, var(--color-warning) 16%, var(--color-surface));
+  --color-warning-700: color-mix(in oklab, var(--color-warning) 75%, white);
+  --color-warning-900: color-mix(in oklab, var(--color-warning) 40%, white);
+}
+
+:root {
+  color-scheme: dark; /* native date pickers, selects and scrollbars follow the mode */
+  --card-ring: rgb(255 255 255 / 0.08);
+  --card-shadow: 0 10px 25px rgb(0 0 0 / 0.2);
+  --card-tint: 5%;
+  /* chart-only colours (read by components/charts.tsx) */
+  --chart-volume: #3b82f6;
+  --chart-neutral: #475569;
+}
+
+/* ---- LIGHT mode: shadcn's neutral (zinc) palette ---- */
+:root[data-mode="light"] {
+  color-scheme: light;
+  --color-sidebar: #f4f4f5;
+  --color-canvas: #ffffff;
+  --color-surface: #ffffff;
+  --color-line: #e4e4e7;
+  --color-line-strong: #d4d4d8;
+  --color-ink: #09090b;
+  --color-ink-soft: #3f3f46;
+  --color-ink-faint: #71717a;
+  --color-muted: #71717a;
+  --color-on-dark: #3f3f46;
+  --color-charcoal: #18181b;
+  --color-charcoal-soft: #27272a;
+  --color-sand-100: #f4f4f5;
+  --color-positive: #16a34a;
+  --color-negative: #e11d48;
+  --color-warning: #d97706;
+  /* text tones darken instead of lighten on a white background (WCAG AA) */
+  --color-accent-700: color-mix(in oklab, var(--color-accent) 55%, black);
+  --color-accent-800: color-mix(in oklab, var(--color-accent) 40%, black);
+  --color-positive-700: color-mix(in oklab, var(--color-positive) 75%, black);
+  --color-negative-700: color-mix(in oklab, var(--color-negative) 80%, black);
+  --color-warning-700: color-mix(in oklab, var(--color-warning) 65%, black);
+  --color-warning-900: color-mix(in oklab, var(--color-warning) 40%, black);
+  --card-ring: rgb(0 0 0 / 0.07);
+  --card-shadow: 0 1px 3px rgb(0 0 0 / 0.06);
+  --card-tint: 2.5%;
+  --chart-neutral: #d4d4d8;
+}
+
+/* ---- ACCENT presets ---- */
+:root[data-accent="lime"] { --color-accent: #b4f03c; --color-on-accent: #0a0a0a; }
+:root[data-accent="blue"] { --color-accent: #3b82f6; --color-on-accent: #ffffff; --chart-volume: #22d3ee; }
+:root[data-accent="violet"] { --color-accent: #8b5cf6; --color-on-accent: #ffffff; }
+:root[data-accent="amber"] { --color-accent: #f59e0b; --color-on-accent: #0a0a0a; }
+:root[data-accent="teal"] { --color-accent: #14b8a6; --color-on-accent: #0a0a0a; }
+:root[data-accent="neutral"] { --color-accent: #e4e4e7; --color-on-accent: #09090b; }
+:root[data-mode="light"][data-accent="neutral"] { --color-accent: #18181b; --color-on-accent: #fafafa; }
+
+/* The reference card: 20px radius, faint accent gradient from the bottom, hairline ring, soft shadow. */
+.card-surface {
+  border-radius: 20px;
+  background-color: var(--color-surface);
+  background-image: linear-gradient(
+    to top,
+    color-mix(in oklab, var(--color-accent) var(--card-tint), transparent),
+    var(--color-surface)
+  );
+  box-shadow:
+    0 0 0 1px var(--card-ring),
+    var(--card-shadow);
+}
+
+/* Circular light/dark reveal (theme-switcher.tsx animates the clip-path): no default cross-fade. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* Guided tour: the control a step is talking about. */
+.tour-highlight {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+  border-radius: 10px;
+  box-shadow: 0 0 0 6px color-mix(in oklab, var(--color-accent) 18%, transparent);
+  transition: box-shadow 0.2s, outline-color 0.2s;
+}
+
+html {
+  background: var(--color-sidebar);
+}
+body {
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}

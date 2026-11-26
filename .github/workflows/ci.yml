@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          # Ephemeral service container, reachable only from this job; not a real credential.
+          POSTGRES_PASSWORD: ci-only-ephemeral
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      # Tests run on BOTH engines. With these set, a missing PostgreSQL fails the build
+      # instead of silently skipping, so green can never mean "SQLite only".
+      REVIEWHUB_TEST_PG_URL: postgresql://postgres:ci-only-ephemeral@localhost:5432/postgres
+      REVIEWHUB_REQUIRE_POSTGRES: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: backend/pyproject.toml
+      - name: Install
+        run: pip install -e ".[dev]"
+      - name: Lint
+        run: ruff check .
+      - name: Format check
+        run: ruff format --check src tests
+      - name: Type check
+        run: mypy
+      - name: Tests (SQLite and PostgreSQL)
+        run: pytest
+      - name: Migrations via the CLI on PostgreSQL (upgrade, downgrade, upgrade)
+        env:
+          REVIEWHUB_DATABASE_URL: postgresql://postgres:ci-only-ephemeral@localhost:5432/postgres
+        run: |
+          reviewhub db upgrade
+          reviewhub db current
+          reviewhub db downgrade
+          reviewhub db upgrade
+      - name: Fresh setup as documented (real sample + offline analysis, no API key)
+        env:
+          REVIEWHUB_DATABASE_URL: sqlite:///${{ runner.temp }}/fresh.db
+        run: |
+          reviewhub db upgrade
+          reviewhub sample load
+          reviewhub sample load | grep -q "new=0"        # idempotent
+          reviewhub ai analyze --provider builtin
+          reviewhub ai status | grep -q "'pending': 0"
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
